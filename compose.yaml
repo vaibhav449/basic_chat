@@ -1,0 +1,34 @@
+# Local development/testing stack - images YAHIN build hote hain.
+# Prod ke liye compose.prod.yaml hai, jo build nahi karta, sirf pull karta hai.
+#
+#   docker compose up --build
+#   http://localhost:8080
+
+name: basic-chat
+
+services:
+  api:
+    build:
+      context: .                      # context ROOT hai, app folder nahi
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 4010
+    restart: unless-stopped
+    # Dhyan do: koi "ports:" NAHI hai.
+    # API bahar se reachable nahi hai, sirf compose ke internal network pe
+    # "api" hostname se. Bahar se aane ka ek hi darwaza hai - nginx.
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "8080:80"                     # bahar :8080, andar nginx ka :80
+    depends_on:
+      api:
+        # Sirf "started" nahi, "healthy". nginx.conf mein "upstream api:4010"
+        # hai aur nginx use STARTUP pe resolve karta hai - API na mile to nginx
+        # start hi nahi hoga. Isliye API ke healthcheck ka intezaar.
+        condition: service_healthy
+    restart: unless-stopped

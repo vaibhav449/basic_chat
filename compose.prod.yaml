@@ -1,0 +1,27 @@
+# Azure VM pe yahi file jayegi. Isme koi "build:" nahi hai - VM kabhi build
+# nahi karega. Wo sirf CI ke banaye hue images pull karta hai.
+#
+#   TAG=<git-sha> docker compose -f compose.prod.yaml up -d
+#
+# Image ko naam se (:latest) deploy karna trap hai - "latest" ek chalta hua
+# pointer hai, to tumhe nahi pata kya chal raha hai aur rollback namumkin hai.
+# Isliye TAG mein git SHA aata hai.
+
+name: basic-chat
+
+services:
+  api:
+    image: ghcr.io/vaibhav449/basic_chat-api:${TAG:?TAG set karna zaroori hai}
+    environment:
+      NODE_ENV: production
+      PORT: 4010
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/vaibhav449/basic_chat-web:${TAG:?TAG set karna zaroori hai}
+    ports:
+      - "80:80"                       # VM pe seedha :80, to URL mein port nahi
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
