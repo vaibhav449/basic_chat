@@ -5,3 +5,10 @@ dist/
 .env
 .env.local
 .DS_Store
+
+# Learning notes - local only
+docs/
+
+# turbo prune ka output
+out/
+out-*/

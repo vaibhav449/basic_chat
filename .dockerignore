@@ -1,0 +1,12 @@
+# Never ship or even upload these into the build context. node_modules in
+# particular would be both huge and wrong - it holds arm64/x86_64 native
+# binaries built for the host, not the image.
+**/node_modules
+**/dist
+**/.turbo
+out
+.git
+.github
+*.log
+.env
+.env.*
